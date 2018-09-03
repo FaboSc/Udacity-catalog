@@ -1,0 +1,19 @@
+{% extends "header.html" %}
+{% block content %}
+    <section>
+        <h2 class="margin_bot"> Add Item</h2>
+        <form action="{{ url_for("add_item")}}" method="post">
+            <label for="title">Title</label><br>
+            <input type="text" id="title" name="title" class="margin_bot"><br>
+            <label for="description">Description</label><br>
+            <input type="text" id="description" name="description" class="margin_bot"><br>
+            <label for="category">Category</label><br>
+            <select class="margin_bot" name="category">
+                {% for i in categories %}
+                    <option value="{{ i.name }}">{{ i.name }}</option>
+                {% endfor %}
+            </select><br>
+            <input type="submit" value="Create" class="margin_top">
+        </form>
+    </section>
+{% endblock %}

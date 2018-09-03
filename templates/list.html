@@ -1,0 +1,16 @@
+{% extends "header.html" %}
+{% block content %}
+<nav>
+    <h2>
+        Categories
+    </h2>
+    {% for i in categories %}
+        <div>
+            <a class="category" href="/catalog/{{i.name}}/items">{{i.name}}</a>
+        </div>
+    {% endfor %}
+</nav>
+<div class="vertical-seperator"></div>
+{% block c %}
+{% endblock %}
+{% endblock %}

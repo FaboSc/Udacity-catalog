@@ -1,0 +1,12 @@
+{% extends "list.html" %}
+{% block c %}
+<section class="category_items">
+<h2>{{cat.name}}</h2>
+{% for i in items %}
+    <div class="category">
+        <a class="link" href="/catalog/{{cat.name}}/{{i.name}}">{{i.name}}</a>
+        <br>
+    </div>
+{% endfor %}
+</section>
+{% endblock %}

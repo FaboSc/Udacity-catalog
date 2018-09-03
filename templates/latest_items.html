@@ -1,0 +1,19 @@
+{% extends "list.html" %}
+{% block c %}
+    <section class="latest_Items">
+        {% if 'username' in session %}
+            <a class="link" href="{{ url_for('add_item')}}">Add Item</a>
+        {% endif %}
+        <h2>
+            Latest Items
+        </h2>
+        <section >
+            {% for i in latestItems %}
+                <div>
+                    <a class="category" href="{{url_for('show_item',category_name = i.category.name, item_name = i.name)}}">{{i.name}}</a>
+            <i class="bracket_text">({{ i.category.name }}) </i>
+            </div>
+            {% endfor %}
+        </section>
+    </section>
+{% endblock %}

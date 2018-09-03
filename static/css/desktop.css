@@ -1,0 +1,118 @@
+body {
+    background-color : lightgrey;
+    margin: 0;
+}
+
+main {
+    width: 100%;
+    display: flex;
+    background-color : white;
+    padding : 1%;
+    border-style : ridge;
+    margin-top : 4%;
+}
+
+nav {
+    width : 25%;
+}
+
+header {
+    background-color : darkblue;
+    min-height : 100px;
+}
+
+h1 {
+    font-size : 50px;
+    margin : 0;
+    color : white;
+}
+
+h2 {
+    font-size : 35px;
+    margin : 0;
+    color : darkblue;
+}
+
+article {
+    font-size: 25px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.wrapper {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.content {
+    width : 75%;
+}
+
+.flex-header {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.category {
+    color : orange;
+    font-size: 25px;
+}
+
+.vertical-seperator {
+    border-left : 1px solid #000;
+}
+
+.category_items {
+    margin-left: 1%;
+}
+
+.margin_bot {
+    margin-bottom: 10px;
+}
+
+.header_button {
+    background-color: orange; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.home_button {
+    font-size : 50px;
+    color : white;
+}
+
+.bracket_text {
+    font-size: 25px;
+    color: grey;
+}
+
+.latest_Items {
+    margin-left: 10px;
+}
+
+.link {
+    color : orange;
+    font-size: 25px;
+}
+
+.margin-top {
+    margin-top: 10px;
+}
