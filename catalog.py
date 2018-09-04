@@ -172,7 +172,7 @@ def show_login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
     login_session['state'] = state
 
-    return render_template('login.html', STATE = state)
+    return render_template('login.html', STATE=state)
 
 
 @app.route('/catalog/<string:category_name>/<string:item_name>')
@@ -182,7 +182,7 @@ def show_item(category_name, item_name):
     return render_template('item.html', item=item)
 
 
-@app.route('/catalog/add', methods = ['GET', 'POST'])
+@app.route('/catalog/add', methods=['GET', 'POST'])
 def add_item():
     """Logic to add an item"""
     if 'username' not in login_session:
