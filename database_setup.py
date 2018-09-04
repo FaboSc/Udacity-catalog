@@ -54,5 +54,6 @@ class Item(Base):
             'user_id': self.user_id
         }
 
+
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.create_all(engine)

@@ -7,7 +7,7 @@ from flask import (Flask,
                    make_response)
 from flask import session as login_session
 
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, or_, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Item, User
 
@@ -21,7 +21,8 @@ import json
 import requests
 
 app = Flask(__name__)
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())\
+    ['web']['client_id']
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
@@ -33,9 +34,13 @@ session = DBSession()
 @app.route('/')
 def catalog():
     """Main page"""
-    latest_items = session.query(Item).order_by(Item.created).limit(10).all()
+    latest_items = session.query(Item).order_by(desc(Item.created))\
+        .limit(10).all()
+    for item in latest_items:
+        print(item.created)
 
-    return render_template('latest_items.html', categories=get_categories(), latestItems=reversed(latest_items))
+    return render_template('latest_items.html', categories=get_categories(),
+                           latestItems=latest_items)
 
 
 @app.route('/catalog')
@@ -97,8 +102,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('Current user is already \
+        connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -126,7 +131,9 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: "' \
+              '150px;-webkit-border-radius: 150px;\
+              -moz-border-radius: 150px;"> '
     flash("You are now logged in as %s." % login_session['username'])
     print ("done!")
     return output
@@ -138,13 +145,15 @@ def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps('Current user not connected.'),
+                                 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % \
+          login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
@@ -169,13 +178,15 @@ def show_category_items(category_name):
     cat = session.query(Category).filter_by(name=category_name).first()
     items = session.query(Item).filter_by(category_name=cat.name).all()
 
-    return render_template('category_items.html', categories=get_categories(), cat=cat, items=items)
+    return render_template('category_items.html', categories=get_categories(),
+                           cat=cat, items=items)
 
 
 @app.route('/login')
 def show_login():
     """Shows login template"""
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
     login_session['state'] = state
 
     return render_template('login.html', STATE=state)
@@ -184,7 +195,8 @@ def show_login():
 @app.route('/catalog/<string:category_name>/<string:item_name>')
 def show_item(category_name, item_name):
     """Shows item template"""
-    item = session.query(Item).filter_by(name=item_name).filter_by(category_name=category_name).first()
+    item = session.query(Item).filter_by(name=item_name).\
+        filter_by(category_name=category_name).first()
     return render_template('item.html', item=item)
 
 
@@ -200,22 +212,26 @@ def add_item():
     if request.method == 'POST':
 
         if session.query(Item).filter_by(name=request.form['title']).\
-                filter_by(category_name=request.form['category']).first() is not None:
-            flash("An item with the given name already exists in the description.")
+                filter_by(category_name=request.form['category']).first()\
+                is not None:
+            flash("An item with the given name already exists in the \
+            description.")
             return render_template('add_item.html', categories=categories)
 
-        item = Item(name=request.form['title'], description=request.form['description'],
-                    category_name=request.form['category'], user_id=get_user_id(login_session['email']))
+        item = Item(name=request.form['title'],
+                    description=request.form['description'],
+                    category_name=request.form['category'],
+                    user_id=get_user_id(login_session['email']))
         session.add(item)
         session.commit()
-
         return redirect(url_for('catalog'))
 
     else:
         return render_template('add_item.html', categories=categories)
 
 
-@app.route('/catalog/<string:category_name>/<string:item_name>/edit', methods=['GET', 'POST'])
+@app.route('/catalog/<string:category_name>/<string:item_name>/edit',
+           methods=['GET', 'POST'])
 def edit_item(item_name, category_name):
     """Logic to edit items"""
     # Check if user is logged in
@@ -224,22 +240,27 @@ def edit_item(item_name, category_name):
         return redirect(url_for('show_login'))
 
     # Query the item from item_name
-    item = session.query(Item).filter_by(name=item_name).filter_by(category_name=category_name).first()
+    item = session.query(Item).filter_by(name=item_name)\
+        .filter_by(category_name=category_name).first()
 
     # Check if user created the item
-    if get_user_id(login_session['email']) != item.user_id or get_user_id(login_session['email']) is None:
+    if get_user_id(login_session['email']) != item.user_id or\
+            get_user_id(login_session['email']) is None:
         flash("You do not have permissions to edit this item!")
-        return render_template('item.html', categories=item.category.name, item_name=item.name, item=item)
+        return render_template('item.html', categories=item.category.name,
+                               item_name=item.name, item=item)
 
     # If request was POST, create a new item
     if request.method == 'POST':
 
         # Check if an item already exists with this name
-        if session.query(Item).filter_by(name=request.form['title']). \
-                filter_by(category_name=request.form['category']).first() is not None \
-                and item.name != request.form['title']:
-            flash("An item with the given name already exists in the description.")
-            return render_template('edit_item.html', item_name=item.name, categories=get_categories(), item=item)
+        if session.query(Item).filter_by(name=request.form['title']).\
+                filter_by(category_name=request.form['category']).first()\
+                is not None and item.name != request.form['title']:
+            flash("An item with the given name already exists in the\
+             description.")
+            return render_template('edit_item.html', item_name=item.name,
+                                   categories=get_categories(), item=item)
 
         item.name = request.form['title']
         item.description = request.form['description']
@@ -250,10 +271,12 @@ def edit_item(item_name, category_name):
 
     # If request was GET, show edit template
     else:
-        return render_template('edit_item.html', item_name=item_name, categories=get_categories(), item=item)
+        return render_template('edit_item.html', item_name=item_name,
+                               categories=get_categories(), item=item)
 
 
-@app.route('/catalog/<string:category_name>/<string:item_name>/delete', methods=['GET', 'POST'])
+@app.route('/catalog/<string:category_name>/<string:item_name>/delete',
+           methods=['GET', 'POST'])
 def delete_item(category_name, item_name):
     """Logic to delete items"""
     if 'username' not in login_session:
@@ -262,17 +285,21 @@ def delete_item(category_name, item_name):
 
     item = session.query(Item).filter_by(name=item_name).first()
 
-    if get_user_id(login_session['email']) != item.user_id or get_user_id(login_session['email']) is None:
+    if get_user_id(login_session['email']) != item.user_id or\
+            get_user_id(login_session['email']) is None:
         flash("You do not have permissions to delete this item!")
-        return render_template('item.html', categories=item.category.name, item_name=item.name, item=item)
+        return render_template('item.html', categories=item.category.name,
+                               item_name=item.name, item=item)
 
     if request.method == 'POST':
-        session.query(Item).filter_by(name=item_name).filter_by(category_name=category_name).delete()
+        session.query(Item).filter_by(name=item_name)\
+            .filter_by(category_name=category_name).delete()
         session.commit()
         return redirect(url_for('catalog'))
     else:
 
-        return render_template('delete_confirmation.html', item_name=item_name, category_name=category_name)
+        return render_template('delete_confirmation.html', item_name=item_name,
+                               category_name=category_name)
 
 
 @app.route('/catalog.json')
@@ -280,17 +307,19 @@ def show_json():
     """Returns a json String for all categories and their items"""
     result = []
     for c in get_categories():
-        category_items = session.query(Item).filter_by(category_name=c.name).all()
+        category_items = session.query(Item)\
+            .filter_by(category_name=c.name).all()
         serialized_items = [i.serialize for i in category_items]
         serialized_category = c.serialize
         serialized_category['Item'] = serialized_items
         result.append(serialized_category)
 
-    return json.dumps(result)
+    return jsonify(result=result)
 
 
 def get_user_id(email):
-    """Returns the ID of an user for a given email address, if there is none, returns None"""
+    """Returns the ID of an user for a given email address, if there is none,
+        returns None"""
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
@@ -312,7 +341,9 @@ def get_user_info(user_id):
 
 def create_user():
     """Creates a new user"""
-    new_user = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
+    new_user = User(name=login_session['username'],
+                    email=login_session['email'],
+                    picture=login_session['picture'])
     session.add(new_user)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
