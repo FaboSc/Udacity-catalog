@@ -1,7 +1,11 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
+from flask import (Flask,
+                   render_template,
+                   request, flash,
+                   redirect,
+                   url_for,
+                   jsonify,
+                   make_response)
 from flask import session as login_session
-
-import random, string
 
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import sessionmaker
@@ -9,9 +13,11 @@ from database_setup import Base, Category, Item, User
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
+
+import random
+import string
 import httplib2
 import json
-from flask import make_response
 import requests
 
 app = Flask(__name__)
@@ -233,7 +239,7 @@ def edit_item(item_name, category_name):
                 filter_by(category_name=request.form['category']).first() is not None \
                 and item.name != request.form['title']:
             flash("An item with the given name already exists in the description.")
-            return render_template('edit_item.html', item_name=item.name, categories=get_categories(),item=item)
+            return render_template('edit_item.html', item_name=item.name, categories=get_categories(), item=item)
 
         item.name = request.form['title']
         item.description = request.form['description']
