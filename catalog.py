@@ -21,14 +21,15 @@ import json
 import requests
 
 app = Flask(__name__)
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())\
-    ['web']['client_id']
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+CLIENT_ID = json.loads(open('client_secrets.json',
+                            'r').read())['web']['client_id']
 
 
 @app.route('/')
@@ -44,7 +45,7 @@ def catalog():
 
 
 @app.route('/catalog')
-def redirectCatalog():
+def redirect_catalog():
     """Redirect to main page"""
     return redirect(url_for('catalog'))
 
@@ -315,6 +316,15 @@ def show_json():
         result.append(serialized_category)
 
     return jsonify(result=result)
+
+
+@app.route('/<string:category_name>/<string:item_name>.json')
+def json_for_item(category_name, item_name):
+    """Returns a json String for a single item"""
+    category_name = category_name.capitalize()
+    item = session.query(Item).filter_by(name=item_name) \
+        .filter(Item.category_name.ilike(category_name)).first()
+    return jsonify(item.serialize)
 
 
 def get_user_id(email):
