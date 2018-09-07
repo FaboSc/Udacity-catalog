@@ -17,5 +17,8 @@ In order to Start the webapp execute the catalog.py file with python and navigat
 ## Endpoints
 A Json endpoint is provided under the address:"localhost:8000/catalog.json"
 
+A Json endpoint for a single item is reachable under "localhost:8000/<category_name>/<item_name>.json".
+Capitalization is important.
+
 ## Credits
 Most of the code is taken from the udacity courses, related to this project.
